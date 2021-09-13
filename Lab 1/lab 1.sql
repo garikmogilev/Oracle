@@ -42,7 +42,6 @@ values(1, 'Rain');
 
 insert into SIA_temp2(ID_t, name_t)
 values(3, 'Scott');
-commit;
 
 select * from SIA_temp2;
 -- inner - left - right (task 16)
