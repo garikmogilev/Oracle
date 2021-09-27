@@ -1,4 +1,6 @@
 -- Task 7
+SELECT * FROM USER_SYS_PRIVS;
+
 create table student (
     name varchar2(20),
     course number(1),

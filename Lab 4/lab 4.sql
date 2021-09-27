@@ -14,6 +14,7 @@ select comp_name, version, status from SYS.DBA_REGISTRY;
 -- PASS: 9I50ybkubu
 
 -- TASK 5 check SIA_PDB
+select pdb_id, pdb_name, status  from SYS.DBA_PDBS where PDB_NAME = 'SIA_PDB';
 
 -- TASK 6
 -- ACTION create role
@@ -73,15 +74,21 @@ create profile U1_PF_SIACORE limit
 -- ACTION create new user XXXCORE
 alter session set "_ORACLE_SCRIPT"=true;
 
-create user U1_SIA_PDB identified by c5yylugbmb
+create user U1_SIA_PDB identified by pass12345
     default tablespace TS_SIA_PDB quota unlimited on TS_SIA_PDB
     temporary tablespace TS_SIA_TEMP_PDB
     profile U1_PF_SIACORE
     account unlock
     password expire;
 
-grant U1_RL_SIACORE to U1_SIA_PDB ;
+grant
+    create session,
+    create table, drop any table
+    to U1_SIA_PDB;
+grant U1_RL_SIACORE to U1_SIA_PDB;
+revoke all privileges from U1_SIA_PDB;
 
+drop user U1_SIA_PDB;
 -- TASK 8
 select * from USER_TABLESPACES;
 
@@ -94,6 +101,6 @@ select * from ALL_USERS;
 select * from USER_APPLICATION_ROLES;
 
 -- TASK 9
-create user c##cdb_admin identified by pass12345;
 alter database open;
--- TASK
+create user c##cdb_admin identified by pass12345;
+

@@ -10,7 +10,7 @@ dataFile 'C:\APP\PRACLE\ORADATA\ORCL\SIA_QDATA.dbf'
 size 10 M
 autoExtend on next 1M
 MAXSIZE 30 M
-offline ;
+offline;
 
 --drop tablespace SIA_QDATA;
 
@@ -18,6 +18,7 @@ alter tablespace SIA_QDATA online;
 
 -- profile
 alter session set "_ORACLE_SCRIPT"=true;
+
 create profile PFQ_SIACORE limit
     password_life_time unlimited
     sessions_per_user 3
@@ -55,6 +56,7 @@ SELECT * FROM USER_SYS_PRIVS;
 
 -- TASK 3 segments of tablespace
 select * from dba_segments where TABLESPACE_NAME = 'SIA_QDATA';
+
 -- TASK 4 >>>>>> SIA.sql
 select * from dba_segments where TABLESPACE_NAME = 'SIA_QDATA';
 
@@ -146,3 +148,5 @@ select * from v$pwfile_users;
 
 -- TASK 24 list dir messages and diagnostics (tracers, data, dumps)
 select * from v$diag_info;
+
+SELECT * from dba_undo_extents;

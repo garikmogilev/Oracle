@@ -17,7 +17,7 @@ select * from person;
 drop table person;
 SELECT * FROM RECYCLEBIN;
 
--- TASK 5 FLASHBACK
+-- TASK 5 FLASHBACK/PURGE
 -- PURGE RECYCLEBIN;
 -- FLASHBACK TABLE student TO BEFORE DROP ;
 
