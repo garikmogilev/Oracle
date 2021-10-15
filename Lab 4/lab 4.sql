@@ -74,7 +74,7 @@ create profile U1_PF_SIACORE limit
 -- ACTION create new user XXXCORE
 alter session set "_ORACLE_SCRIPT"=true;
 
-create user U1_SIA_PDB identified by pass12345
+create user U1_SIA_PDB identified by c5yylugbmb
     default tablespace TS_SIA_PDB quota unlimited on TS_SIA_PDB
     temporary tablespace TS_SIA_TEMP_PDB
     profile U1_PF_SIACORE
@@ -90,7 +90,7 @@ revoke all privileges from U1_SIA_PDB;
 
 drop user U1_SIA_PDB;
 -- TASK 8
-select * from USER_TABLESPACES;
+select TABLESPACE_NAME from USER_TABLESPACES;
 
 select * from USER_FILE_GROUP_TABLESPACES;
 

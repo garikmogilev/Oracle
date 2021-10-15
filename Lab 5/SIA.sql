@@ -4,7 +4,7 @@ SELECT * FROM USER_SYS_PRIVS;
 create table person (
     ID NUMBER  primary key,
     name varchar2(20)
-)tablespace SIA_QDATA;
+);
 
 
 insert  into person(ID, name) VALUES (1,'person1');
