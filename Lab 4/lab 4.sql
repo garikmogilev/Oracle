@@ -36,14 +36,14 @@ select * from dba_sys_privs where grantee = 'U1_RL_SIACORE';   -- privilege RL_S
 -- TASK 6 create security profile
 -- ACTION Create table spaces
 create tablespace TS_SIA_PDB
-    datafile 'C:\APP\PRACLE\ORADATA\orcl\SIA_PDB\TS_SIA.DBF'
+    datafile 'C:\APP\ORACLE\ORADATA\orcl\SIA_PDB\TS_SIA.DBF'
     size 7M
     autoextend on next 5M
     maxsize 20M;
 
 -- ACTION Create TABLE TEMPORARY
 create temporary tablespace TS_SIA_TEMP_PDB
-    tempfile 'C:\APP\PRACLE\ORADATA\orcl\SIA_PDB\TS_SIA_TEMP.DBF'
+    tempfile 'C:\APP\ORACLE\ORADATA\orcl\SIA_PDB\TS_SIA_TEMP.DBF'
     size 5M
     autoextend on next 5M
     maxsize 20M;
@@ -74,7 +74,7 @@ create profile U1_PF_SIACORE limit
 -- ACTION create new user XXXCORE
 alter session set "_ORACLE_SCRIPT"=true;
 
-create user U1_SIA_PDB identified by c5yylugbmb
+create user U1_SIA_PDB identified by pass12345
     default tablespace TS_SIA_PDB quota unlimited on TS_SIA_PDB
     temporary tablespace TS_SIA_TEMP_PDB
     profile U1_PF_SIACORE
@@ -85,7 +85,9 @@ grant
     create session,
     create table, drop any table
     to U1_SIA_PDB;
+
 grant U1_RL_SIACORE to U1_SIA_PDB;
+
 revoke all privileges from U1_SIA_PDB;
 
 drop user U1_SIA_PDB;
