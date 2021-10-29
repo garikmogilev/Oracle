@@ -148,7 +148,7 @@ insert into TABLE_FACULTY (FACULTY) values('ПОиБМС');
 
 insert into TABLE_STUDENT (FIRSTNAME, LASTNAME, FACULTY) values('Igor', 'Skvortsov', 'ПОИТ');
 insert into TABLE_STUDENT (FIRSTNAME, LASTNAME, FACULTY) values('Sergo', 'Valco', 'ПОИТ');
-insert into TABLE_STUDENT (FIRSTNAME, LASTNAME, FACULTY) values('Nastya', 'Krivtsova', 'ИСИТ');
+insert into TABLE_STUDENT (FIRSTNAME, LASTNAME, FACULTY) values('VASYA', 'Krivtsova', 'ИСИТ');
 
 select * from TABLE_FACULTY;
 select * from TABLE_STUDENT;
@@ -169,4 +169,3 @@ AS SELECT TF.FIRSTNAME, TF.LASTNAME, TF.FACULTY
 FROM TABLE_FACULTY  INNER JOIN TABLE_STUDENT TF on TF.FACULTY = TABLE_FACULTY.FACULTY;
 
 select * from MV;
-

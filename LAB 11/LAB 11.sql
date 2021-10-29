@@ -419,6 +419,7 @@ DECLARE
     txt varchar2(1000);
     aum auditorium.auditorium%type;
 begin
+        SYS.DBMS_OUTPUT.ENABLE (buffer_size => null);
     open curs_aut;
         fetch curs_aut into aut, c_auditorium;
         while(curs_aut % found)
@@ -427,7 +428,7 @@ begin
 
             loop
                 fetch c_auditorium into aum;
-                exit when c_auditorium%notfound;
+                exit when c_auditorium % notfound;
                 txt := txt||','||rtrim(aum);
             end loop;
 
