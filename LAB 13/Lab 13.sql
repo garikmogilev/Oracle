@@ -1,4 +1,6 @@
 -- LAB 13 PROCEDURES AND FUNCTIONS
+select * from USER_PROCEDURES;
+
 ---------------- IF USE DATAGRIP ----------------------
 begin
         SYS.DBMS_OUTPUT.ENABLE (buffer_size => null);

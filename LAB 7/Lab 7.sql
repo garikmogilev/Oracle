@@ -9,7 +9,7 @@ select * from V_$BGPROCESS
         order by NAME;
 
 -- TASK 3 -- processes DBWn, when is active
-select NAME, DESCRIPTION, PRIORITY from V_$BGPROCESS
+select NAME, DESCRIPTION from V_$BGPROCESS
     WHERE PADDR != hextoraw('00') and  NAME like 'DBW%';
 
 -- TASK 4 get the current sessions

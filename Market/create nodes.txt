@@ -1,0 +1,305 @@
+Create the nodes for ORACLE 19C RAC
+##########################################
+[root@node1 ~]# vi /etc/hosts
+##########################################
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Public
+
+192.168.24.20 node1.localdomain node1
+192.168.24.21 node2.localdomain node2
+
+# Private
+
+192.168.10.10 node1-priv.localdomain node1-priv
+192.168.10.11 node2-priv.localdomain node2-priv
+
+# Virtual
+
+192.168.24.31 node1-vip.localdomain node1-vip
+192.168.24.32 node2-vip.localdomain node2-vip
+
+# SCAN
+
+192.168.24.41 node-scan.localdomain node-scan
+192.168.24.42 node-scan.localdomain node-scan
+192.168.24.43 node-scan.localdomain node-scan
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+------------------------------------------
+# SET NODE1 PUBLIC IP
+# SET NODE1 PRIVATE IP
+------------------------------------------
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+##########################################
+Configure your network adapters
+##########################################
+[root@node1 ~]# service network restart
+##########################################
+
+------------------------------------------
+DISABLE SELINUX ON NODE1
+------------------------------------------
+##########################################
+[root@node1 ~]# vi /etc/selinux/config
+##########################################
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+...
+SELINUX=disabled
+...
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+------------------------------------------
+STOP AND DISABLE FIREWALL & NETWORK MANAGER SERVICES ON NODE1
+------------------------------------------
+##########################################
+[root@node1 ~]# systemctl stop firewalld.service
+[root@node1 ~]# systemctl disable firewalld
+    # [root@node1 ~]# systemctl stop NetworkManager
+    # [root@node1 ~]# systemctl disable NetworkManager
+##########################################
+
+------------------------------------------
+INSTALLATION OF NEEDED PACKAGES ON NODE1 AND NODE2
+------------------------------------------
+##########################################
+[root@node1 ~]# yum install oracle-database-preinstall-19c
+[root@node1 ~]# yum install oracleasm-support
+[root@node1 ~]# yum install bind bind-utils -y
+[root@node1 ~]# sysctl -p
+[root@node1 ~]# reboot
+##########################################
+
+------------------------------------------
+CREATE NEEDED USERS & GROUPS ON NODE1
+------------------------------------------
+##########################################
+[root@node1 ~]# groupadd -g 54333 asmdba
+[root@node1 ~]# groupadd -g 54334 asmoper
+[root@node1 ~]# groupadd -g 54335 asmadmin
+[root@node1 ~]# useradd -m -u 54341 -g oinstall -G dba,asmadmin,asmdba,asmoper -d /home/grid -s /bin/bash grid
+[root@node1 ~]# usermod -a -G asmdba oracle
+[root@node1 ~]# passwd oracle
+[root@node1 ~]# passwd grid
+##########################################
+
+------------------------------------------
+CREATE AND GIVE NEEDED PERMISSIONS FOR DIRECTORIES ON NODE1
+------------------------------------------
+##########################################
+[root@node1 ~]# mkdir -p /u01/app/grid/19.3.0/gridhome_1
+[root@node1 ~]# mkdir -p /u01/app/grid/gridbase/
+[root@node1 ~]# mkdir -p /u01/app/oracle/database/19.3.0/dbhome_1
+[root@node1 ~]# chown -R oracle.oinstall /u01/
+[root@node1 ~]# chown -R grid.oinstall /u01/app/grid
+[root@node1 ~]# chmod -R 775 /u01/
+##########################################
+
+------------------------------------------
+UPDATE ORACLE & GRID USERS PROFILE ON NODE1
+------------------------------------------
+##########################################
+vi /home/oracle/.bash_profile
+##########################################
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+export TMP=/tmp
+export TMPDIR=$TMP
+export ORACLE_HOSTNAME=node1.skvortsoff.local
+export ORACLE_UNQNAME=SKV19C
+export ORACLE_BASE=/u01/app/oracle/database/19.3.0/
+export DB_HOME=$ORACLE_BASE/dbhome_1
+export ORACLE_HOME=$DB_HOME
+export ORACLE_SID=SKV19C
+export ORACLE_TERM=xterm
+export PATH=/usr/sbin:/usr/local/bin:$PATH
+export PATH=$ORACLE_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
+export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+##########################################
+[root@node1 ~]# vi /home/grid/.bash_profile
+##########################################
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+export TMP=/tmp
+export TMPDIR=$TMP
+export ORACLE_HOSTNAME=node1.skvortsoff.local
+export ORACLE_BASE=/u01/app/grid/gridbase/
+export ORACLE_HOME=/u01/app/grid/19.3.0/gridhome_1
+export GRID_BASE=/u01/app/grid/gridbase/
+export GRID_HOME=/u01/app/grid/19.3.0/gridhome_1
+export ORACLE_SID=+ASM1
+export ORACLE_TERM=xterm
+export PATH=/usr/sbin:/usr/local/bin:$PATH
+export PATH=$ORACLE_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
+export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+------------------------------------------
+DNS nameserver configuration
+------------------------------------------
+##########################################
+[root@node1 ~]# rpm -qa | grep bind
+[root@node1 ~]# cp /etc/named.conf /etc/named.conf_bkp
+[root@node1 ~]# vim /etc/named.conf
+##########################################
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// named.conf
+//
+// Provided by Red Hat bind package to configure the ISC BIND named(8) DNS
+// server as a caching only nameserver (as a localhost DNS resolver only).
+//
+// See /usr/share/doc/bind*/sample/ for example named configuration files.
+//
+// See the BIND Administrator’s Reference Manual (ARM) for details about the
+// configuration located in /usr/share/doc/bind-{version}/Bv9ARM.html
+
+options {
+listen-on port 53 { 127.0.0.1; 192.168.24.1; };
+listen-on-v6 port 53 { ::1; };
+directory "/var/named";
+dump-file "/var/named/data/cache_dump.db";
+statistics-file "/var/named/data/named_stats.txt";
+memstatistics-file "/var/named/data/named_mem_stats.txt";
+recursing-file "/var/named/data/named.recursing";
+secroots-file "/var/named/data/named.secroots";
+allow-query { localhost; 192.168.24.0/24; };
+
+/*
+– If you are building an AUTHORITATIVE DNS server, do NOT enable recursion.
+– If you are building a RECURSIVE (caching) DNS server, you need to enable
+recursion.
+– If your recursive DNS server has a public IP address, you MUST enable access
+control to limit queries to your legitimate users. Failing to do so will
+cause your server to become part of large scale DNS amplification
+attacks. Implementing BCP38 within your network would greatly
+reduce such attack surface
+*/
+recursion yes;
+dnssec-enable yes;
+dnssec-validation yes;
+
+/* Path to ISC DLV key */
+bindkeys-file "/etc/named.root.key";
+
+managed-keys-directory "/var/named/dynamic";
+
+pid-file "/run/named/named.pid";
+session-keyfile "/run/named/session.key";
+};
+
+logging {
+channel default_debug {
+file "data/named.run";
+severity dynamic;
+};
+};
+
+zone "." IN {
+type hint;
+file "named.ca";
+};
+
+zone "localdomain.com" IN {
+type master;
+file "localdomain.zone";
+allow-update { none; };
+};
+
+zone "24.168.192.in-addr.arpa." IN {
+type master;
+file "24.168.192.in-addr.arpa";
+allow-update { none; };
+};
+
+include "/etc/named.rfc1912.zones";
+include "/etc/named.root.key";
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+##########################################
+[root@node1 ~]# cp /var/named/named.localhost /var/named/localdomain.zone
+##########################################
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+$TTL 86400
+@ IN SOA node1.localdomain.com. root.localdomain.com. (
+2014051001 ; serial
+3600 ; refresh
+1800 ; retry
+604800 ; expire
+86400 ; minimum
+)
+@ IN NS node1.localdomain.
+localhost IN A 127.0.0.1
+node1 IN A 192.168.24.20
+node2 IN A 192.168.24.21
+node1-priv IN A 192.168.10.10
+node2-priv IN A 192.168.10.11
+node1-vip IN A 192.168.24.31
+node2-vip IN A 192.168.24.32
+node-scan IN A 192.168.24.41
+node-scan IN A 192.168.24.42
+node-scan IN A 192.168.24.43
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+##########################################
+[root@node1 ~]# cp /var/named/named.loopback /var/named/24.168.192.in-addr.arpa
+##########################################
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+$TTL 86400
+@ IN SOA node1.localdomain.com. root.localdomain.com. (
+2
+3H
+1H
+1W
+1H )
+@ IN NS node1.localdomain.com.
+@ IN PTR localdomain.com.
+node1 IN A 192.168.24.20
+node-scan IN A 192.168.24.41
+node-scan IN A 192.168.24.42
+node-scan IN A 192.168.24.43
+1 IN PTR node1.localdomain.com.
+41 IN PTR node-scan.localdomain.
+42 IN PTR node-scan.localdomain.
+43 IN PTR node-scan.localdomain.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+##########################################
+[root@node1 ~]# chgrp named /var/named/localdomain.zone
+[root@node1 ~]# chgrp named /var/named/24.168.192.in-addr.arpa
+[root@node1 ~]# ls -lZd /etc/named.conf
+>> -rwxrwxr-x. root root unconfined_u:object_r:etc_t:s0 /etc/named.conf
+[root@node1 ~]# restorecon /etc/named.conf
+##########################################
+
+------------------------------------------
+Deploy iptables Rules to allow DNS service
+------------------------------------------
+##########################################
+[root@node1 ~]# iptables -A INPUT -i lo -j ACCEPT
+[root@node1 ~]# iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+[root@node1 ~]# iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+[root@node1 ~]# iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
+[root@node1 ~]# iptables -A INPUT -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+[root@node1 ~]# iptables -A INPUT -j DROP
+
+[root@node1 ~]#  cat /etc/resolv.conf
+>> # Generated by NetworkManager
+>> search localdomain
+>> nameserver 192.168.24.1
+>> options timeout:1
+>> options attempts:5
+
+???????????????????????????????????????????
+CHECK DNS
+???????????????????????????????????????????
+###########################################
+[root@node1 ~]# nslookup node-scan
+>> Name: dbwr-scan.localdomain
+>> Address: 192.168.24.43
+>> Name: dbwr-scan.localdomain
+>> Address: 192.168.24.42
+>> Name: dbwr-scan.localdomain
+>> Address: 192.168.24.41
