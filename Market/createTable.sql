@@ -70,8 +70,8 @@ CREATE TABLE users (
     UserCountry varchar(20)  NULL,
     UserCity varchar(50)  NULL,
     UserAddress varchar(50)  NULL,
-    UserZip decimal(6,0)  NULL,
-    UserPhone decimal(14,0)  NULL,
+    UserZip varchar(10)  NULL,
+    UserPhone varchar(14)  NULL,
     Role int  NULL
 );
 
@@ -122,8 +122,8 @@ ADD CONSTRAINT PK_users
 ALTER TABLE comments
 ADD CONSTRAINT FK_CommentProductPK
     FOREIGN KEY (CommentProductID)
-    REFERENCES products
-        (ProductID);
+    REFERENCES products(ProductID)
+        ON DELETE CASCADE;
 
 -- Creating non-clustered index for FOREIGN KEY 'FK_CommentProductPK'
 CREATE INDEX IX_FK_CommentProductPK
@@ -134,8 +134,8 @@ ON comments
 ALTER TABLE orderdetails
 ADD CONSTRAINT FK_DetailsOrderFK
     FOREIGN KEY (DetailsOrderID)
-    REFERENCES orders
-        (OrderID);
+    REFERENCES orders(OrderID)
+        ON DELETE CASCADE;;
 
 -- Creating non-clustered index for FOREIGN KEY 'FK_DetailsOrderFK'
 CREATE INDEX IX_FK_DetailsOrderFK
@@ -146,8 +146,8 @@ ON orderdetails
 ALTER TABLE orderdetails
 ADD CONSTRAINT FK_DetailsProductFK
     FOREIGN KEY (DetailsProductID)
-    REFERENCES products
-        (ProductID);
+    REFERENCES products(ProductID)
+        ON DELETE CASCADE;;
 
 -- Creating non-clustered index for FOREIGN KEY 'FK_DetailsProductFK'
 CREATE INDEX IX_FK_DetailsProductFK
@@ -158,8 +158,8 @@ ON orderdetails
 ALTER TABLE orders
 ADD CONSTRAINT FK_OrdersUsersFK
     FOREIGN KEY (OrderUserID)
-    REFERENCES users
-        (UserID);
+    REFERENCES users(UserID)
+        ON DELETE CASCADE;;
 
 -- Creating non-clustered index for FOREIGN KEY 'FK_OrdersUsersFK'
 CREATE INDEX IX_FK_OrdersUsersFK
@@ -170,8 +170,8 @@ ON orders
 ALTER TABLE products
 ADD CONSTRAINT FK_ProductCategoriesFK
     FOREIGN KEY (ProductCategory)
-    REFERENCES productcategories
-        (CategoryID);
+    REFERENCES productcategories(CategoryID)
+        ON DELETE CASCADE;;
 
 -- Creating non-clustered index for FOREIGN KEY 'FK_ProductCategoriesFK'
 CREATE INDEX IX_FK_ProductCategoriesFK
@@ -182,8 +182,8 @@ ON products
 ALTER TABLE productsubcategories
 ADD CONSTRAINT FK_SubCategoryFK
     FOREIGN KEY (SubcategoryCategoryID)
-    REFERENCES productcategories
-        (CategoryID);
+    REFERENCES productcategories(CategoryID)
+        ON DELETE CASCADE;;
 
 -- Creating non-clustered index for FOREIGN KEY 'FK_SubCategoryFK'
 CREATE INDEX IX_FK_SubCategoryFK
@@ -194,13 +194,20 @@ ON productsubcategories
 ALTER TABLE products
 ADD CONSTRAINT FK_ProductSubcategoriesFK
     FOREIGN KEY (ProductSubcategory)
-    REFERENCES productsubcategories
-        (SubcategoryID);
+    REFERENCES productsubcategories(SubcategoryID)
+        ON DELETE CASCADE;;
 
 -- Creating non-clustered index for FOREIGN KEY 'FK_ProductSubcategoriesFK'
 CREATE INDEX IX_FK_ProductSubcategoriesFK
 ON products
     (ProductSubcategory);
+
+
+-- --------------------------------------------------
+-- Creating INDEX by fields for search
+-- --------------------------------------------------
+CREATE INDEX IX_ProductName
+    on products (ProductName);
 
 -- --------------------------------------------------
 -- Script has ended

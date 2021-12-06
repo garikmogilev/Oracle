@@ -1,18 +1,18 @@
-
-create or replace procedure GetAllStudents(c_student out SYS_REFCURSOR)
-    as
-begin
-    open c_student for select * from STUDENT;
-end;
-
--- drop function GetAllStudents;
+CREATE OR REPLACE PROCEDURE SKVORTSOFF6.FETCH_PERSON_HISTORY(post_cursor OUT SYS_REFCURSOR)
+    IS
+BEGIN
+    OPEN post_cursor FOR SELECT * FROM CUSTUMERS;
+END;
 
 declare
     rc sys_refcursor;
+    ch SKVORTSOFF3.CUSTUMERS % rowtype;
 begin
-    GETALLSTUDENTS(rc);
-    for student in rc
-    loop
-        SYS.DBMS_OUTPUT.PUT_LINE(student.LASTNAME);
-        end loop;
+    SKVORTSOFF3.FETCH_PERSON_HISTORY(rc);
+ loop
+     fetch rc
+         INTO  ch;
+     SYS.DBMS_OUTPUT.PUT_LINE(ch.NAME);
+     EXIT WHEN rc%NOTFOUND;
+ end loop;
 end;
